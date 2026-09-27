@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horrocrux</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <audio id="bg-audio" src="media/timeadventure.mp3" loop preload="auto"></audio>
+
+  <main id="stage" class="stage" aria-live="polite">
+
+    <!-- Escena 1: mensaje inicial -->
+    <section class="scene" id="scene-intro" data-scene>
+      <div class="scene__center">
+        <p class="type-target type-target--display" id="text-intro"></p>
+      </div>
+    </section>
+
+    <!-- Escena 2: Horrocrux -->
+    <section class="scene" id="scene-horrocrux" data-scene hidden>
+      <div class="scene__content">
+        <h1 class="type-target type-target--title" id="text-horrocrux-title"></h1>
+        <p class="type-target type-target--body" id="text-horrocrux-body"></p>
+        <button class="btn btn--continue" id="btn-continue" hidden>Continuar</button>
+      </div>
+    </section>
+
+    <!-- Escena 3: los cuatro elementos -->
+    <section class="scene" id="scene-elements" data-scene hidden>
+      <div class="elements-grid" id="elements-grid">
+        <article class="element-card" data-element="oso">
+          <div class="element-card__frame">
+            <img class="element-card__image" src="media/oso.png" alt="Oso" loading="lazy">
+          </div>
+          <p class="element-card__label">Oso</p>
+        </article>
+
+        <article class="element-card" data-element="anillo">
+          <div class="element-card__frame">
+            <img class="element-card__image" src="media/anillo.png" alt="Anillo" loading="lazy">
+          </div>
+          <p class="element-card__label">Anillo</p>
+        </article>
+
+        <article class="element-card" data-element="placas">
+          <div class="element-card__frame">
+            <img class="element-card__image" src="media/placas.png" alt="Placas" loading="lazy">
+          </div>
+          <p class="element-card__label">Placas</p>
+        </article>
+
+        <article class="element-card" data-element="cadena">
+          <div class="element-card__frame">
+            <img class="element-card__image" src="media/cadena.png" alt="Cadena" loading="lazy">
+          </div>
+          <p class="element-card__label">Cadena</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Escena 4: verificación de apodo -->
+    <section class="scene" id="scene-apodo" data-scene hidden>
+      <div class="scene__content">
+        <p class="type-target type-target--display" id="text-apodo"></p>
+        <div class="apodo-field">
+          <input
+            type="text"
+            id="input-apodo"
+            class="apodo-input"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            aria-label="Escribe tu apodo"
+          >
+        </div>
+        <button class="btn btn--back" id="btn-apodo-back" hidden>Volver</button>
+      </div>
+    </section>
+
+    <!-- Escena 4.5: conteo regresivo (desactivable desde CONFIG en script.js) -->
+    <section class="scene" id="scene-countdown" data-scene hidden>
+      <div class="scene__content">
+        <p class="type-target type-target--display" id="text-countdown-label"></p>
+        <div class="countdown" id="countdown-display" aria-live="polite">
+          <div class="countdown__unit">
+            <span class="countdown__value" id="cd-days">00</span>
+            <span class="countdown__label">días</span>
+          </div>
+          <div class="countdown__unit">
+            <span class="countdown__value" id="cd-hours">00</span>
+            <span class="countdown__label">horas</span>
+          </div>
+          <div class="countdown__unit">
+            <span class="countdown__value" id="cd-minutes">00</span>
+            <span class="countdown__label">min</span>
+          </div>
+          <div class="countdown__unit">
+            <span class="countdown__value" id="cd-seconds">00</span>
+            <span class="countdown__label">seg</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Escena 5: escena final -->
+    <section class="scene" id="scene-final" data-scene hidden>
+      <div class="scene__content">
+        <div class="final-image-frame">
+          <img id="final-image" src="media/rostro.jpeg" alt="" loading="lazy">
+        </div>
+        <div class="final-text-scroll">
+          <p class="type-target type-target--body" id="text-final"></p>
+        </div>
+        <div class="page-nav">
+          <button class="page-arrow page-arrow--prev" id="btn-final-prev" aria-label="Página anterior" type="button">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="page-dots" id="final-dots" aria-hidden="true"></div>
+          <button class="page-arrow page-arrow--next" id="btn-final-next-page" aria-label="Página siguiente" type="button">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m9 4 8 8-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="final-actions" id="final-actions" hidden>
+          <button class="btn btn--back" id="btn-final-back">Regresar</button>
+          <button class="btn" id="btn-final-continue">Continuar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Escena 6: segunda pregunta (la nave) -->
+    <section class="scene" id="scene-nave" data-scene hidden>
+      <div class="scene__content">
+        <p class="type-target type-target--display" id="text-nave"></p>
+        <div class="apodo-field">
+          <input
+            type="text"
+            id="input-nave"
+            class="apodo-input"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            aria-label="Escribe tu respuesta"
+          >
+        </div>
+        <button class="btn btn--back" id="btn-nave-back" hidden>Volver</button>
+      </div>
+    </section>
+
+    <!-- Escena 6.5: segundo conteo regresivo (desactivable desde CONFIG en script.js) -->
+    <section class="scene" id="scene-countdown-2" data-scene hidden>
+      <div class="scene__content">
+        <p class="type-target type-target--display" id="text-countdown-label-2"></p>
+        <div class="countdown" aria-live="polite">
+          <div class="countdown__unit">
+            <span class="countdown__value" id="cd2-days">00</span>
+            <span class="countdown__label">días</span>
+          </div>
+          <div class="countdown__unit">
+            <span class="countdown__value" id="cd2-hours">00</span>
+            <span class="countdown__label">horas</span>
+          </div>
+          <div class="countdown__unit">
+            <span class="countdown__value" id="cd2-minutes">00</span>
+            <span class="countdown__label">min</span>
+          </div>
+          <div class="countdown__unit">
+            <span class="countdown__value" id="cd2-seconds">00</span>
+            <span class="countdown__label">seg</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Escena 6.8: mensaje corto antes de zaninas.png -->
+    <section class="scene" id="scene-pre-zaninas" data-scene hidden>
+      <div class="scene__center">
+        <p class="type-target type-target--display" id="text-pre-zaninas"></p>
+      </div>
+    </section>
+
+    <!-- Escena 7: revelación de zaninas.png -->
+    <section class="scene" id="scene-zaninas" data-scene hidden>
+      <div class="scene__content">
+        <div class="zaninas-frame">
+          <img id="zaninas-image" src="media/zaninas.png" alt="" loading="lazy">
+        </div>
+        <div class="final-text-scroll">
+          <p class="type-target type-target--body" id="text-zaninas"></p>
+        </div>
+        <div class="page-nav">
+          <button class="page-arrow page-arrow--prev" id="btn-zaninas-prev" aria-label="Página anterior" type="button">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="page-dots" id="zaninas-dots" aria-hidden="true"></div>
+          <button class="page-arrow page-arrow--next" id="btn-zaninas-next-page" aria-label="Página siguiente" type="button">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m9 4 8 8-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="grain" aria-hidden="true"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

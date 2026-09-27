@@ -107,14 +107,6 @@ const TypeSound = {
   },
 };
 
-function escapeHtml(str) {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
 /* ============================================================
    Typewriter — sistema reutilizable de escritura procedural
    ============================================================ */
@@ -182,15 +174,22 @@ class Typewriter {
         }
 
         const isSpace = /\s/.test(token.value);
-        const charHtml =
-          this.reducedMotion || isSpace
-            ? escapeHtml(token.value)
-            : `<span class="ch">${escapeHtml(token.value)}</span>`;
+        // Insertar el nodo directamente (sin pasar por parseo de HTML) es
+        // más barato para el navegador que insertAdjacentHTML por carácter,
+        // ya que evita crear y parsear una cadena nueva en cada paso.
+        let node;
+        if (this.reducedMotion || isSpace) {
+          node = document.createTextNode(token.value);
+        } else {
+          node = document.createElement('span');
+          node.className = 'ch';
+          node.textContent = token.value;
+        }
 
         if (caret) {
-          caret.insertAdjacentHTML('beforebegin', charHtml);
+          this.el.insertBefore(node, caret);
         } else {
-          this.el.insertAdjacentHTML('beforeend', charHtml);
+          this.el.appendChild(node);
         }
 
         if (this.sound && !isSpace) TypeSound.tick(token.value);
@@ -252,7 +251,6 @@ const AudioController = {
   el: null,
   targetVolume: 0.35,
   unlocked: false,
-  _globalHandlersBound: false,
 
   init() {
     this.el = document.getElementById('bg-audio');
@@ -265,61 +263,43 @@ const AudioController = {
     });
   },
 
-  async tryPlay() {
-    if (!this.el) return;
-
-    // 1) Intento directo con sonido.
-    try {
-      await this.el.play();
-      this.unlocked = true;
-      return;
-    } catch (err) {
-      /* el navegador bloqueó el autoplay con sonido, seguimos */
-    }
-
-    // 2) Autoplay silenciado: casi todos los navegadores lo permiten,
-    //    así el audio ya está sonando (en silencio) y solo falta subir el volumen
-    //    en cuanto haya cualquier interacción, sin mostrar nada en pantalla.
-    try {
-      this.el.muted = true;
-      await this.el.play();
-    } catch (err) {
-      /* ni el autoplay silenciado fue posible; esperamos igualmente la interacción */
-    }
-    this._armGlobalUnlock();
-  },
-
   /**
-   * Escucha la primera interacción del usuario en cualquier parte de la página
-   * (clic, toque o tecla) para reproducir/desmutear el audio de forma discreta,
-   * sin ninguna interfaz visible.
+   * Intenta reproducir la canción con sonido y no se resuelve hasta que el
+   * audio REALMENTE empieza a sonar (evento 'playing'). Si el navegador
+   * bloquea el autoplay con sonido, muestra el prompt del Loader y reintenta
+   * en cuanto el usuario toca. Si el archivo de audio falla por completo,
+   * se resuelve de todos modos para no dejar al usuario atascado.
    */
-  _armGlobalUnlock() {
-    if (this._globalHandlersBound) return;
-    this._globalHandlersBound = true;
+  waitUntilPlaying() {
+    if (!this.el) return Promise.resolve();
 
-    const unlock = async () => {
-      if (this.unlocked) return;
-      try {
-        this.el.muted = false;
-        this.el.volume = this.targetVolume;
-        await this.el.play();
+    return new Promise((resolve) => {
+      let done = false;
+
+      const finish = () => {
+        if (done) return;
+        done = true;
+        this.el.removeEventListener('playing', onPlaying);
+        this.el.removeEventListener('error', onError);
         this.unlocked = true;
-      } catch (err) {
-        return;
-      }
-      teardown();
-    };
+        resolve();
+      };
 
-    const teardown = () => {
-      window.removeEventListener('pointerdown', unlock);
-      window.removeEventListener('keydown', unlock);
-      window.removeEventListener('touchstart', unlock);
-    };
+      const onPlaying = () => finish();
+      const onError = () => finish();
 
-    window.addEventListener('pointerdown', unlock, { passive: true });
-    window.addEventListener('keydown', unlock);
-    window.addEventListener('touchstart', unlock, { passive: true });
+      this.el.addEventListener('playing', onPlaying);
+      this.el.addEventListener('error', onError);
+
+      const attempt = () => {
+        this.el.play().catch(() => {
+          // El navegador bloqueó el autoplay con sonido: pedimos un toque.
+          Loader.showPrompt(() => attempt());
+        });
+      };
+
+      attempt();
+    });
   },
 
   /**
@@ -362,6 +342,89 @@ const AudioController = {
     };
     fadeIn();
   },
+
+  /**
+   * Detiene la pista actual de inmediato (sin fade), para el corte seco
+   * al acertar "olvido": silencio hasta que arranque nocturne más adelante.
+   */
+  stop() {
+    if (!this.el) return;
+    this.el.pause();
+  },
+
+  /**
+   * Arranca una pista nueva desde cero (con fade-in), asumiendo que no hay
+   * nada sonando ya (por eso no necesita el fade-out de switchTrack).
+   */
+  async playNew(src) {
+    if (!this.el) return;
+
+    this.el.pause();
+    this.el.src = src;
+    this.el.load();
+    this.el.volume = 0;
+
+    try {
+      await this.el.play();
+      this.unlocked = true;
+    } catch (err) {
+      console.warn('No se pudo reproducir la nueva pista de audio.');
+    }
+
+    const fadeIn = () => {
+      this.el.volume = Math.min(this.targetVolume, this.el.volume + 0.05);
+      if (this.el.volume < this.targetVolume) requestAnimationFrame(fadeIn);
+    };
+    fadeIn();
+  },
+};
+
+/* ============================================================
+   Loader — pantalla de carga que espera a que suene la canción
+   ============================================================ */
+
+const Loader = {
+  el: null,
+  textEl: null,
+  promptBtn: null,
+
+  init() {
+    this.el = document.getElementById('loader');
+    this.textEl = document.getElementById('loader-text');
+    this.promptBtn = document.getElementById('loader-prompt');
+  },
+
+  /**
+   * Muestra el botón "Toca para comenzar" (solo aparece si el navegador
+   * bloqueó el autoplay con sonido) y ejecuta onTap en el próximo clic,
+   * que sí cuenta como interacción del usuario para poder reproducir audio.
+   */
+  showPrompt(onTap) {
+    if (!this.promptBtn) return;
+    if (this.textEl) this.textEl.textContent = 'Toca para comenzar';
+
+    this.promptBtn.hidden = false;
+    void this.promptBtn.offsetWidth;
+    this.promptBtn.classList.add('is-shown');
+
+    const handler = () => {
+      this.promptBtn.removeEventListener('click', handler);
+      this.promptBtn.classList.remove('is-shown');
+      if (this.textEl) this.textEl.textContent = 'Cargando…';
+      onTap();
+    };
+    this.promptBtn.addEventListener('click', handler);
+  },
+
+  hide() {
+    if (!this.el) return;
+    this.el.classList.add('is-hidden');
+    const cleanup = () => {
+      this.el.hidden = true;
+      this.el.removeEventListener('transitionend', cleanup);
+    };
+    this.el.addEventListener('transitionend', cleanup);
+  },
 };
 
 /* ============================================================
@@ -379,11 +442,28 @@ const Ambient = {
     document.documentElement.style.setProperty('--mx', '50%');
     document.documentElement.style.setProperty('--my', '40%');
 
-    const move = (x, y) => {
-      const vx = (x / window.innerWidth) * 100;
-      const vy = (y / window.innerHeight) * 100;
+    // Agrupamos las actualizaciones en requestAnimationFrame: un pointermove
+    // puede dispararse decenas o cientos de veces por segundo, pero solo
+    // necesitamos actualizar el estilo una vez por frame renderizado.
+    let pendingX = null;
+    let pendingY = null;
+    let rafScheduled = false;
+
+    const flush = () => {
+      rafScheduled = false;
+      const vx = (pendingX / window.innerWidth) * 100;
+      const vy = (pendingY / window.innerHeight) * 100;
       document.documentElement.style.setProperty('--mx', `${vx}%`);
       document.documentElement.style.setProperty('--my', `${vy}%`);
+    };
+
+    const move = (x, y) => {
+      pendingX = x;
+      pendingY = y;
+      if (!rafScheduled) {
+        rafScheduled = true;
+        requestAnimationFrame(flush);
+      }
     };
 
     window.addEventListener(
@@ -673,6 +753,11 @@ async function runNaveQuestion() {
     return;
   }
 
+  // Al acertar "olvido", la música de adventure se corta de inmediato.
+  // Nocturne no arranca aquí: lo hace runZaninas() justo cuando aparece
+  // el texto "Me gusta mucho esta melodía".
+  AudioController.stop();
+
   await wait(2000);
 
   if (CONFIG.countdown2Enabled) {
@@ -757,12 +842,44 @@ async function runCountdown2() {
   await runZaninas();
 }
 
-const FINAL_PARAGRAPHS = [
+/* ============================================================
+   Texto "inicial": la carta de cumpleaños que aparece debajo de
+   la imagen final (rostro.jpeg → editada.png) y también se reutiliza
+   en la escena de zaninas.
+   ============================================================ */
+const INICIAL_NICOL = [
   'Buen día, cabezona. Te habla Zannián, pero no el churco que apodaste como «rulos», no... Te hablo de este Zannián: el que no tiene un género, el que carece de un lunar cerca de su ojo derecho y que perdió su piel. ¿Te diste cuenta de lo curioso que es? Detenerse a pensar que asociamos con mayor facilidad a las personas que queremos con su ente superficial, su carne y sus huesos, pero no por las razones que las hacen ser ellas.',
   'Pasando de página, quería desearte un cumpleaños espectacular. Aunque nuestra amistad parece no ser la más cercana, de lo que me has podido dar a conocer de ti, lo que más resalta es tu gran fuerza de voluntad. Sé que no es fácil seguir adelante con situaciones tan complejas, y más con un pasado tan problemático, pero resulta esperanzador verte querer un futuro brillante para ti. Considero que eso dice mucho sobre quién eres.',
   'Como amigo tuyo, lo que me hace ilusión es saber que te encuentras bien, por lo que espero que la relación con Daniel prospere y sea lo que siempre estuviste esperando para impulsarte. Ojalá se enamore de tus defectos, como tu linda habla incesante; que se preocupe el día que ya no salga una palabra de tu boca; que se ría cuando te vea pensar en voz alta cada pensamiento que se te ocurra en el momento y sonría al ver tu lenguaje corporal cuando expresas alguna situación de tu entorno; que vea los sutiles, pero bellos, detalles que tiene tu ruidosa alma.',
   'Espero que este proceso te ayude a aliviar tus malos hábitos o pensamientos; que, aparte de tener una cara bonita, también tengas una vida bonita. Ya con eso no tendrás esa sensación de que el tiempo se te pasa volando.',
   'Sigue esforzándote como lo haces, maestra en filosofía, Nicol, y no olvides que se te quiere.',
+];
+
+/* ============================================================
+   AQUÍ ESCRIBES TÚ EL TEXTO "INTERMEDIO"
+   (el que aparece debajo de la imagen de zaninas)
+   ============================================================ */
+const INTERMEDIO_NICOL = [
+  'Este párrafo será generalizado para hacerlo más fácil, no es una carta de suicidio porqué el cadáver ya está y lleva unos cuantos meses, esto es un tema serio para mí, no busco hacer drama pero si esto suena así para ustedes pueden cerrar está página e ir a comer mierda, puede que esto ya lo allá intentado con alguno antes pero por sentirme atado al cariño que les tenía me quedaba,',
+  'considero que todos están locos pero cada uno tiene una demencia diferente, por ejemplo ustedes mismos, uno es violento, otro es obsesivo, otro fetiches retorcidos, etc.. yo por mi parte desde que era niño tuve el problema de ser demasiado consiente de mi entorno, me decepcioné de la vida e intenta nadar contra corriente todos estos años porque quería ser esa diferencia, que genuinamente las personas pudieran tener a alguien que sea su hogar sin prejuicios,',
+  'evidentemente tuve errores pero con sinceridad simplemente intentaba ser una linda persona entré tanta mierda pero ya me quiero dejar llevar, por esta misma acción es que tomo la decisión de alejarme de ustedes, no me siento identificado ni con el nombre de "Zannián", estoy desechando toda esa vida, puede que técnicamente esto es decir que me raye pero como ya le comenté a alguno,',
+  'no creo que un psicólogo sea la solución cuando el paciente sabe que es lo que le ocurre y no busca cooperar para "sanar" si no manejarlo a su manera, como les comenté a algunos estuve estudiando respecto a la psicología e hice un cuento sobre lo que encontré, de entre lo qué aprendí fueron mecanismos de ecpatia pero los lleve más al extremo y ya me incómodo lo suficiente seguir fingiendo ser lo que se supone que es "Zannián" ',
+  'con el tiempo eliminaré mis redes y si alguno llega a contactarme por las nuevas estaré dispuesto a hablar si la intención es formar una nueva amistad, de lo contrario los trataré como si fueran mis exs, con esto no les prometo bienestar para mí vida, si me alejo es para que sé queden con la linda visión que tienen de el, la vida es demasiado corta como para detenerse a preocuparse por la ajena, tirense una chillada si lo necesitan y pasen página',
+]; // <-- Escribe aquí tu texto, entre las comillas.
+
+/* ============================================================
+   AQUÍ ESCRIBES TÚ EL TEXTO "FINAL_NICOL"
+   (aparece solo, sin imagen, justo después del mensaje
+   "Ahora uno más personal"). Cada elemento del array es un
+   párrafo/página; se navegan con las flechas prev/next, igual
+   que el texto de INICIAL_NICOL.
+   ============================================================ */
+const FINAL_NICOL = [
+  'Bueno Nicol ya es su parte explicativa, de mi parte diría que lo tienes re jodido, claramente no tienes una buena vida y ahora el que según bajo tus palabras era tu único amigo se va pa la mierda,',
+  'parece una apuñalada del universo a tus ovarios, de verdad que te tratan como si fueras una oveja negra pero quién sabe si lo que le decías era cierto o parte de tu juegos de manipulación, ya ni porque seas mujer si no porque así de mierda creciste,',
+  'evidentemente tuve errores pero con sinceridad simplemente intentaba ser una linda persona entré tanta mierda pero ya me quiero dejar llevar, por esta misma acción es que tomo la decisión de alejarme de ustedes, no me siento identificado ni con el nombre de "Zannián", estoy desechando toda esa vida, puede que técnicamente esto es decir que me raye pero como ya le comenté a alguno,',
+  'créeme que eres indefendible, por parte de Zannián ojalá que su visión de ti se cumpla porqué la que te gusta mostrar al público parece ser que es la de ser el juguete de bonita cara de los niños y de esos hay en exageración en el mundo,',
+  'suerte con la "soledad afectiva" que esto te ayude a pasar de página más fácil y que Zannián no sea una excusa para comprarte cuchillas',
 ];
 
 /**
@@ -873,7 +990,7 @@ async function runFinal() {
   const nextBtn = document.getElementById('btn-final-continue');
 
   await runPaginatedText({
-    paragraphs: FINAL_PARAGRAPHS,
+    paragraphs: INICIAL_NICOL,
     textElId: 'text-final',
     dotsWrapId: 'final-dots',
     prevBtnId: 'btn-final-prev',
@@ -917,21 +1034,52 @@ async function runZaninas() {
   Ambient.setMood('zaninas');
   await Scenes.show('scene-pre-zaninas');
 
+  // Nocturne arranca justo cuando aparece el texto "Me gusta mucho esta
+  // melodía" (la música de adventure ya se detuvo al acertar "olvido").
+  AudioController.playNew('media/nocturne.mp3');
+
   const tw = new Typewriter(document.getElementById('text-pre-zaninas'), { speed: 38 });
   await tw.type('Me gusta mucho esta melodía');
   await wait(2000);
 
   await Scenes.show('scene-zaninas');
-  AudioController.switchTrack('media/nocturne.mp3');
 
   await wait(1500);
 
+  // Escribe el texto "intermedio" (definido arriba en INTERMEDIO_NICOL)
+  // debajo de la imagen de zaninas.
+  if (INTERMEDIO_NICOL.trim() !== '') {
+    const twIntermedio = new Typewriter(document.getElementById('text-intermedio'), { speed: 20 });
+    await twIntermedio.type(INTERMEDIO_NICOL);
+    await wait(2000);
+  }
+
+  // Al terminar el texto intermedio, Scenes.show ya se encarga de que
+  // todo (imagen incluida) desaparezca con un fundido antes de mostrar
+  // la siguiente escena.
+  await runPreFinalNicol();
+}
+
+async function runPreFinalNicol() {
+  Ambient.setMood('final-nicol');
+  await Scenes.show('scene-pre-final-nicol');
+
+  const tw = new Typewriter(document.getElementById('text-pre-final-nicol'), { speed: 38 });
+  await tw.type('Ahora uno más personal');
+  await wait(2000);
+
+  await runFinalNicol();
+}
+
+async function runFinalNicol() {
+  await Scenes.show('scene-final-nicol');
+
   await runPaginatedText({
-    paragraphs: FINAL_PARAGRAPHS,
-    textElId: 'text-zaninas',
-    dotsWrapId: 'zaninas-dots',
-    prevBtnId: 'btn-zaninas-prev',
-    nextBtnId: 'btn-zaninas-next-page',
+    paragraphs: FINAL_NICOL,
+    textElId: 'text-final-nicol',
+    dotsWrapId: 'final-nicol-dots',
+    prevBtnId: 'btn-final-nicol-prev',
+    nextBtnId: 'btn-final-nicol-next-page',
   });
 }
 
@@ -955,8 +1103,12 @@ document.addEventListener('DOMContentLoaded', () => {
     Ambient.init();
     TypeSound.init();
     AudioController.init();
-    AudioController.tryPlay();
-    startExperience();
+    Loader.init();
+
+    AudioController.waitUntilPlaying().then(() => {
+      Loader.hide();
+      startExperience();
+    });
   } catch (err) {
     console.error('Fallo crítico al iniciar la experiencia:', err);
   }

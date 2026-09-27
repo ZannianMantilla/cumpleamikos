@@ -26,6 +26,27 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/*
+  Evita que mantener presionado (long-press) o arrastrar con el dedo
+  seleccione texto, dispare el menú contextual de iOS/Android o arrastre
+  una imagen fuera de su lugar. El scroll normal de la página sigue
+  bloqueado por overflow:hidden arriba. Los elementos que sí necesitan
+  seleccionar texto (inputs y el texto largo) lo recuperan más abajo.
+*/
+html {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-touch-callout: none;
 }
 
 body {
@@ -73,6 +94,61 @@ body[data-mood='zaninas'] {
 
 body[data-mood='final'] {
   filter: saturate(1) brightness(1.02) contrast(1.02);
+}
+
+body[data-mood='final-nicol'] {
+  filter: saturate(0.95) brightness(1.01) contrast(1.03);
+}
+
+/* Loader inicial: espera a que la canción realmente empiece a sonar */
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--black);
+  transition: opacity var(--dur-slow) var(--ease);
+}
+
+.loader.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loader__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4rem;
+}
+
+.loader__spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(242, 241, 238, 0.15);
+  border-top-color: rgba(242, 241, 238, 0.7);
+  animation: loader-spin 900ms linear infinite;
+}
+
+@keyframes loader-spin {
+  to { transform: rotate(360deg); }
+}
+
+.loader__text {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mid-gray);
+  margin: 0;
+}
+
+.loader__prompt {
+  margin-top: 0.2rem;
 }
 
 /* Aro de luz ambiental que respira lentamente */
@@ -124,7 +200,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6vh 6vw;
+  padding: calc(6vh + env(safe-area-inset-top, 0px)) 6vw calc(6vh + env(safe-area-inset-bottom, 0px)) 6vw;
   opacity: 0;
   transform: scale(1.015);
   transition: opacity var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease);
@@ -218,21 +294,17 @@ body::before {
   display: inline-block;
   opacity: 0;
   transform: translateY(2px);
-  filter: blur(2px);
   animation: char-in 240ms var(--ease) forwards;
-  will-change: opacity, filter, transform;
 }
 
 @keyframes char-in {
   from {
     opacity: 0;
     transform: translateY(2px);
-    filter: blur(2px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
-    filter: blur(0);
   }
 }
 
@@ -401,6 +473,11 @@ body::before {
   padding: 0.5rem;
 }
 
+/* ============================================================
+   Responsive — móvil, tablet y escritorio
+   ============================================================ */
+
+/* Móvil (hasta 640px): grid de elementos más compacta */
 @media (max-width: 640px) {
   .elements-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -417,6 +494,178 @@ body::before {
 
   .element-card__frame {
     width: 72%;
+  }
+
+  .scene__content {
+    gap: 1.6rem;
+  }
+
+  .scene__center {
+    max-width: 32ch;
+  }
+
+  .final-image-frame {
+    width: min(50vw, 180px);
+  }
+
+  .zaninas-frame img,
+  .zaninas-frame {
+    max-height: 42vh;
+  }
+
+  .final-text-scroll {
+    max-height: 34vh;
+  }
+
+  .countdown {
+    gap: 0.8rem 1.4rem;
+  }
+
+  .countdown__unit {
+    min-width: 52px;
+  }
+}
+
+/* Teléfonos muy angostos (320–400px) */
+@media (max-width: 400px) {
+  .scene {
+    padding-left: 4.5vw;
+    padding-right: 4.5vw;
+  }
+
+  .btn {
+    padding: 0.85rem 1.8rem;
+    min-width: 0;
+    width: 100%;
+    max-width: 260px;
+  }
+
+  .btn--back {
+    padding: 0.65rem 1.4rem;
+  }
+
+  .final-actions {
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+  }
+
+  .apodo-input {
+    width: 100%;
+  }
+}
+
+/* Tablet (641–1024px): un poco más de espacio para respirar */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .scene__content {
+    max-width: 62ch;
+    gap: 2.4rem;
+  }
+
+  .elements-grid {
+    width: min(72vw, 760px);
+    height: min(70vh, 620px);
+    gap: 1.6rem;
+  }
+
+  .final-image-frame {
+    width: min(34vw, 240px);
+  }
+
+  .zaninas-frame {
+    width: min(64vw, 480px);
+  }
+}
+
+/* Escritorio (1025px en adelante): tope de ancho para no estirar demasiado el texto */
+@media (min-width: 1025px) {
+  .scene {
+    padding: calc(5vh + env(safe-area-inset-top, 0px)) 8vw calc(5vh + env(safe-area-inset-bottom, 0px)) 8vw;
+  }
+
+  .scene__content {
+    max-width: 58ch;
+  }
+
+  .elements-grid {
+    width: min(50vw, 920px);
+    height: min(74vh, 640px);
+  }
+
+  .final-image-frame {
+    width: min(24vw, 220px);
+  }
+
+  .zaninas-frame {
+    width: min(44vw, 460px);
+  }
+}
+
+/* Pantallas muy anchas: la grilla de elementos no debe verse minúscula */
+@media (min-width: 1600px) {
+  .elements-grid {
+    width: min(46vw, 980px);
+    height: min(72vh, 680px);
+  }
+}
+
+/* Móvil en horizontal (poca altura): reducir espacios verticales */
+@media (max-height: 500px) and (orientation: landscape) {
+  .scene {
+    padding-top: calc(3vh + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(3vh + env(safe-area-inset-bottom, 0px));
+  }
+
+  .scene__content {
+    gap: 1rem;
+  }
+
+  .elements-grid {
+    height: min(82vh, 420px);
+    gap: 0.6rem;
+  }
+
+  .element-card {
+    padding: 0.6rem;
+    gap: 0.4rem;
+  }
+
+  .final-image-frame {
+    width: min(20vh, 130px);
+  }
+
+  .zaninas-frame,
+  .zaninas-frame img {
+    max-height: 46vh;
+  }
+
+  .final-text-scroll {
+    max-height: 40vh;
+  }
+
+  .countdown__value {
+    font-size: clamp(1.4rem, 4vh, 2rem);
+  }
+}
+
+/* Pantallas táctiles: objetivos de toque más grandes (recomendación ~44px) */
+@media (pointer: coarse) {
+  .page-arrow {
+    width: 44px;
+    height: 44px;
+  }
+
+  .page-nav {
+    gap: 0.75rem;
+  }
+
+  .page-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .element-card {
+    min-height: 44px;
   }
 }
 
@@ -441,6 +690,12 @@ body::before {
   outline: none;
   transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease,
     background var(--dur-fast) ease, color var(--dur-fast) ease;
+  /* A diferencia del resto de la página, el campo sí debe permitirte
+     tocar para posicionar el cursor, seleccionar y pegar con normalidad. */
+  touch-action: manipulation;
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
 }
 
 .apodo-input::placeholder {
@@ -606,6 +861,11 @@ body::before {
   padding: 0 0.6rem;
   scrollbar-width: thin;
   scrollbar-color: rgba(242, 241, 238, 0.25) transparent;
+  /* Este contenedor sí necesita poder desplazarse con el dedo,
+     aunque el resto de la página tenga los gestos bloqueados. */
+  touch-action: pan-y;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 .final-text-scroll::-webkit-scrollbar {
@@ -724,6 +984,8 @@ body::before {
 /* Reduced motion */
 
 @media (prefers-reduced-motion: reduce) {
+  .loader,
+  .loader__spinner,
   .scene,
   .btn,
   .element-card,

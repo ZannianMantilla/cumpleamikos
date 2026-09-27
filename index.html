@@ -2,14 +2,41 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Horrocrux</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<!--
+  Precarga de recursos que se usan más adelante en la experiencia.
+  Así el navegador los descarga en segundo plano mientras el usuario
+  todavía está en las primeras escenas, y cuando les toca aparecer
+  ya están en caché (sin esperas ni "parpadeo" al cargar).
+-->
+<link rel="preload" as="image" href="media/oso.png">
+<link rel="preload" as="image" href="media/anillo.png">
+<link rel="preload" as="image" href="media/placas.png">
+<link rel="preload" as="image" href="media/cadena.png">
+<link rel="preload" as="image" href="media/editada.png">
+<link rel="preload" as="image" href="media/zaninas.png">
+<link rel="preload" as="audio" href="media/nocturne.mp3">
 </head>
 <body>
+
+  <!--
+    Loader inicial: cubre toda la pantalla hasta que la canción de fondo
+    realmente empieza a sonar (evento 'playing' del audio). Si el navegador
+    bloquea el autoplay con sonido, se muestra el botón "Toca para comenzar";
+    en cuanto el usuario lo toca, se reintenta reproducir.
+  -->
+  <div id="loader" class="loader" role="status" aria-live="polite">
+    <div class="loader__content">
+      <div class="loader__spinner" aria-hidden="true"></div>
+      <p class="loader__text" id="loader-text">Cargando…</p>
+      <button class="btn loader__prompt" id="loader-prompt" type="button" hidden>Toca para comenzar</button>
+    </div>
+  </div>
 
   <audio id="bg-audio" src="media/timeadventure.mp3" loop preload="auto"></audio>
 
@@ -36,28 +63,28 @@
       <div class="elements-grid" id="elements-grid">
         <article class="element-card" data-element="oso">
           <div class="element-card__frame">
-            <img class="element-card__image" src="media/oso.png" alt="Oso" loading="lazy">
+            <img class="element-card__image" src="media/oso.png" alt="Oso" loading="lazy" decoding="async" draggable="false">
           </div>
           <p class="element-card__label">Oso</p>
         </article>
 
         <article class="element-card" data-element="anillo">
           <div class="element-card__frame">
-            <img class="element-card__image" src="media/anillo.png" alt="Anillo" loading="lazy">
+            <img class="element-card__image" src="media/anillo.png" alt="Anillo" loading="lazy" decoding="async" draggable="false">
           </div>
           <p class="element-card__label">Anillo</p>
         </article>
 
         <article class="element-card" data-element="placas">
           <div class="element-card__frame">
-            <img class="element-card__image" src="media/placas.png" alt="Placas" loading="lazy">
+            <img class="element-card__image" src="media/placas.png" alt="Placas" loading="lazy" decoding="async" draggable="false">
           </div>
           <p class="element-card__label">Placas</p>
         </article>
 
         <article class="element-card" data-element="cadena">
           <div class="element-card__frame">
-            <img class="element-card__image" src="media/cadena.png" alt="Cadena" loading="lazy">
+            <img class="element-card__image" src="media/cadena.png" alt="Cadena" loading="lazy" decoding="async" draggable="false">
           </div>
           <p class="element-card__label">Cadena</p>
         </article>
@@ -113,7 +140,7 @@
     <section class="scene" id="scene-final" data-scene hidden>
       <div class="scene__content">
         <div class="final-image-frame">
-          <img id="final-image" src="media/rostro.jpeg" alt="" loading="lazy">
+          <img id="final-image" src="media/rostro.jpeg" alt="" loading="lazy" decoding="async" draggable="false">
         </div>
         <div class="final-text-scroll">
           <p class="type-target type-target--body" id="text-final"></p>
@@ -190,17 +217,42 @@
     <section class="scene" id="scene-zaninas" data-scene hidden>
       <div class="scene__content">
         <div class="zaninas-frame">
-          <img id="zaninas-image" src="media/zaninas.png" alt="" loading="lazy">
+          <img id="zaninas-image" src="media/zaninas.png" alt="" loading="lazy" decoding="async" draggable="false">
         </div>
+
+        <!--
+          Texto "intermedio": aparece debajo de la imagen de zaninas.
+          No hace falta que edites nada aquí; el contenido se escribe
+          en script.js, en la constante INTERMEDIO_NICOL (búscala con Ctrl+F).
+        -->
+        <p class="type-target type-target--body" id="text-intermedio"></p>
+      </div>
+    </section>
+
+    <!-- Escena 7.5: mensaje corto antes del texto final_nicol -->
+    <section class="scene" id="scene-pre-final-nicol" data-scene hidden>
+      <div class="scene__center">
+        <p class="type-target type-target--display" id="text-pre-final-nicol"></p>
+      </div>
+    </section>
+
+    <!-- Escena 8: texto final_nicol, sin imagen -->
+    <section class="scene" id="scene-final-nicol" data-scene hidden>
+      <div class="scene__content">
+        <!--
+          Texto "final_nicol": aparece solo, sin imagen, después del
+          mensaje "Ahora uno más personal". Escribe el contenido en
+          script.js, en la constante FINAL_NICOL (búscala con Ctrl+F).
+        -->
         <div class="final-text-scroll">
-          <p class="type-target type-target--body" id="text-zaninas"></p>
+          <p class="type-target type-target--body" id="text-final-nicol"></p>
         </div>
         <div class="page-nav">
-          <button class="page-arrow page-arrow--prev" id="btn-zaninas-prev" aria-label="Página anterior" type="button">
+          <button class="page-arrow page-arrow--prev" id="btn-final-nicol-prev" aria-label="Página anterior" type="button">
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <div class="page-dots" id="zaninas-dots" aria-hidden="true"></div>
-          <button class="page-arrow page-arrow--next" id="btn-zaninas-next-page" aria-label="Página siguiente" type="button">
+          <div class="page-dots" id="final-nicol-dots" aria-hidden="true"></div>
+          <button class="page-arrow page-arrow--next" id="btn-final-nicol-next-page" aria-label="Página siguiente" type="button">
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m9 4 8 8-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </div>

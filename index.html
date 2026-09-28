@@ -223,9 +223,20 @@
         <!--
           Texto "intermedio": aparece debajo de la imagen de zaninas.
           No hace falta que edites nada aquí; el contenido se escribe
-          en script.js, en la constante INTERMEDIO_NICOL (búscala con Ctrl+F).
+          en content.js, en INTERMEDIO_NICOL / INTERMEDIO_NICOLAS (búscalo con Ctrl+F).
         -->
-        <p class="type-target type-target--body" id="text-intermedio"></p>
+        <div class="final-text-scroll">
+          <p class="type-target type-target--body" id="text-intermedio"></p>
+        </div>
+        <div class="page-nav">
+          <button class="page-arrow page-arrow--prev" id="btn-intermedio-prev" aria-label="Página anterior" type="button">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="page-dots" id="intermedio-dots" aria-hidden="true"></div>
+          <button class="page-arrow page-arrow--next" id="btn-intermedio-next-page" aria-label="Página siguiente" type="button">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m9 4 8 8-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
       </div>
     </section>
 
@@ -242,7 +253,7 @@
         <!--
           Texto "final_nicol": aparece solo, sin imagen, después del
           mensaje "Ahora uno más personal". Escribe el contenido en
-          script.js, en la constante FINAL_NICOL (búscala con Ctrl+F).
+          content.js, en FINAL_NICOL / FINAL_NICOLAS (búscalo con Ctrl+F).
         -->
         <div class="final-text-scroll">
           <p class="type-target type-target--body" id="text-final-nicol"></p>
@@ -263,6 +274,8 @@
 
   <div class="grain" aria-hidden="true"></div>
 
+  <!-- content.js: textos, respuestas, fechas e imágenes de cada ruta (anillo, placas...). script.js: el motor. -->
+  <script src="content.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

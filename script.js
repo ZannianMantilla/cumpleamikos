@@ -1,20 +1,9 @@
 'use strict';
 
 /* ============================================================
-   CONFIG — ajustes fáciles de tocar
+   Motor de la experiencia. Los textos, respuestas, fechas e
+   imágenes de cada persona viven en content.js (ROUTES).
    ============================================================ */
-
-const CONFIG = {
-  // Cambia esto a false para saltarte el primer conteo regresivo y probar
-  // directamente la escena final mientras la desarrollas.
-  countdownEnabled: true,
-  // Fecha/hora objetivo del primer conteo (hora local del navegador).
-  countdownTarget: '2026-10-21T00:00:00',
-
-  // Igual que arriba, pero para el segundo conteo (después de la nave).
-  countdown2Enabled: true,
-  countdown2Target: '2026-10-23T00:00:00',
-};
 
 /* ============================================================
    TypeSound — clics de escritura sintetizados (sin archivos externos)
@@ -601,42 +590,12 @@ async function runElements() {
     if (!reduced) await wait(140);
   }
 
-  armAnilloTrigger();
-}
-
-function armAnilloTrigger() {
-  const card = document.querySelector('.element-card[data-element="anillo"]');
-  if (!card) return;
-
-  card.setAttribute('role', 'button');
-  card.setAttribute('tabindex', '0');
-
-  const trigger = () => {
-    card.removeEventListener('click', trigger);
-    card.removeEventListener('keydown', onKey);
-    runApodo();
-  };
-  const onKey = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      trigger();
-    }
-  };
-
-  card.addEventListener('click', trigger);
-  card.addEventListener('keydown', onKey);
-}
-
-async function runElementsAgain() {
-  Ambient.setMood('elements');
-  await Scenes.show('scene-elements');
-  armAnilloTrigger();
+  armRouteTriggers();
 }
 
 /**
  * Escena de pregunta con validación: escribe la pregunta, muestra un input
- * y un botón "Volver". Se resuelve con 'correct' o 'back'. Reutilizable
- * para cualquier pregunta con una única respuesta correcta.
+ * y un botón "Volver". Se resuelve con "correct" o "back".
  */
 async function runQuestionScene({ sceneId, questionElId, inputElId, backBtnId, question, correctAnswer, mood }) {
   Ambient.setMood(mood);
@@ -650,6 +609,7 @@ async function runQuestionScene({ sceneId, questionElId, inputElId, backBtnId, q
 
   input.value = '';
   input.disabled = false;
+  input.classList.remove('is-correct', 'is-wrong');
   void input.offsetWidth;
   input.focus();
 
@@ -712,65 +672,7 @@ async function runQuestionScene({ sceneId, questionElId, inputElId, backBtnId, q
   return outcome;
 }
 
-async function runApodo() {
-  const outcome = await runQuestionScene({
-    sceneId: 'scene-apodo',
-    questionElId: 'text-apodo',
-    inputElId: 'input-apodo',
-    backBtnId: 'btn-apodo-back',
-    question: '¿Cuál es tu apodo?',
-    correctAnswer: 'cabezona',
-    mood: 'apodo',
-  });
-
-  if (outcome === 'back') {
-    await runElementsAgain();
-    return;
-  }
-
-  await wait(2000);
-
-  if (CONFIG.countdownEnabled) {
-    await runCountdown();
-  } else {
-    await runFinal();
-  }
-}
-
-async function runNaveQuestion() {
-  const outcome = await runQuestionScene({
-    sceneId: 'scene-nave',
-    questionElId: 'text-nave',
-    inputElId: 'input-nave',
-    backBtnId: 'btn-nave-back',
-    question: 'Si yo me llamo "jose" y tú "mon", ¿cómo se llamaría nuestra nave?',
-    correctAnswer: 'olvido',
-    mood: 'nave',
-  });
-
-  if (outcome === 'back') {
-    await runElementsAgain();
-    return;
-  }
-
-  // Al acertar "olvido", la música de adventure se corta de inmediato.
-  // Nocturne no arranca aquí: lo hace runZaninas() justo cuando aparece
-  // el texto "Me gusta mucho esta melodía".
-  AudioController.stop();
-
-  await wait(2000);
-
-  if (CONFIG.countdown2Enabled) {
-    await runCountdown2();
-  } else {
-    await runZaninas();
-  }
-}
-
-/**
- * Escena de conteo regresivo hacia una fecha objetivo. Reutilizable para
- * cualquier par de ids de escena/dígitos.
- */
+/** Escena de conteo regresivo hacia una fecha objetivo. */
 async function runCountdownScene({ sceneId, labelElId, daysId, hoursId, minutesId, secondsId, target, mood, labelText }) {
   Ambient.setMood(mood);
   await Scenes.show(sceneId);
@@ -812,82 +714,11 @@ async function runCountdownScene({ sceneId, labelElId, daysId, hoursId, minutesI
   });
 }
 
-async function runCountdown() {
-  await runCountdownScene({
-    sceneId: 'scene-countdown',
-    labelElId: 'text-countdown-label',
-    daysId: 'cd-days',
-    hoursId: 'cd-hours',
-    minutesId: 'cd-minutes',
-    secondsId: 'cd-seconds',
-    target: CONFIG.countdownTarget,
-    mood: 'countdown',
-    labelText: 'Falta poco para lo siguiente',
-  });
-  await runFinal();
-}
-
-async function runCountdown2() {
-  await runCountdownScene({
-    sceneId: 'scene-countdown-2',
-    labelElId: 'text-countdown-label-2',
-    daysId: 'cd2-days',
-    hoursId: 'cd2-hours',
-    minutesId: 'cd2-minutes',
-    secondsId: 'cd2-seconds',
-    target: CONFIG.countdown2Target,
-    mood: 'countdown2',
-    labelText: 'Un poco más de paciencia',
-  });
-  await runZaninas();
-}
-
-/* ============================================================
-   Texto "inicial": la carta de cumpleaños que aparece debajo de
-   la imagen final (rostro.jpeg → editada.png) y también se reutiliza
-   en la escena de zaninas.
-   ============================================================ */
-const INICIAL_NICOL = [
-  'Buen día, cabezona. Te habla Zannián, pero no el churco que apodaste como «rulos», no... Te hablo de este Zannián: el que no tiene un género, el que carece de un lunar cerca de su ojo derecho y que perdió su piel. ¿Te diste cuenta de lo curioso que es? Detenerse a pensar que asociamos con mayor facilidad a las personas que queremos con su ente superficial, su carne y sus huesos, pero no por las razones que las hacen ser ellas.',
-  'Pasando de página, quería desearte un cumpleaños espectacular. Aunque nuestra amistad parece no ser la más cercana, de lo que me has podido dar a conocer de ti, lo que más resalta es tu gran fuerza de voluntad. Sé que no es fácil seguir adelante con situaciones tan complejas, y más con un pasado tan problemático, pero resulta esperanzador verte querer un futuro brillante para ti. Considero que eso dice mucho sobre quién eres.',
-  'Como amigo tuyo, lo que me hace ilusión es saber que te encuentras bien, por lo que espero que la relación con Daniel prospere y sea lo que siempre estuviste esperando para impulsarte. Ojalá se enamore de tus defectos, como tu linda habla incesante; que se preocupe el día que ya no salga una palabra de tu boca; que se ría cuando te vea pensar en voz alta cada pensamiento que se te ocurra en el momento y sonría al ver tu lenguaje corporal cuando expresas alguna situación de tu entorno; que vea los sutiles, pero bellos, detalles que tiene tu ruidosa alma.',
-  'Espero que este proceso te ayude a aliviar tus malos hábitos o pensamientos; que, aparte de tener una cara bonita, también tengas una vida bonita. Ya con eso no tendrás esa sensación de que el tiempo se te pasa volando.',
-  'Sigue esforzándote como lo haces, maestra en filosofía, Nicol, y no olvides que se te quiere.',
-];
-
-/* ============================================================
-   AQUÍ ESCRIBES TÚ EL TEXTO "INTERMEDIO"
-   (el que aparece debajo de la imagen de zaninas)
-   ============================================================ */
-const INTERMEDIO_NICOL = [
-  'Este párrafo será generalizado para hacerlo más fácil, no es una carta de suicidio porqué el cadáver ya está y lleva unos cuantos meses, esto es un tema serio para mí, no busco hacer drama pero si esto suena así para ustedes pueden cerrar está página e ir a comer mierda, puede que esto ya lo allá intentado con alguno antes pero por sentirme atado al cariño que les tenía me quedaba,',
-  'considero que todos están locos pero cada uno tiene una demencia diferente, por ejemplo ustedes mismos, uno es violento, otro es obsesivo, otro fetiches retorcidos, etc.. yo por mi parte desde que era niño tuve el problema de ser demasiado consiente de mi entorno, me decepcioné de la vida e intenta nadar contra corriente todos estos años porque quería ser esa diferencia, que genuinamente las personas pudieran tener a alguien que sea su hogar sin prejuicios,',
-  'evidentemente tuve errores pero con sinceridad simplemente intentaba ser una linda persona entré tanta mierda pero ya me quiero dejar llevar, por esta misma acción es que tomo la decisión de alejarme de ustedes, no me siento identificado ni con el nombre de "Zannián", estoy desechando toda esa vida, puede que técnicamente esto es decir que me raye pero como ya le comenté a alguno,',
-  'no creo que un psicólogo sea la solución cuando el paciente sabe que es lo que le ocurre y no busca cooperar para "sanar" si no manejarlo a su manera, como les comenté a algunos estuve estudiando respecto a la psicología e hice un cuento sobre lo que encontré, de entre lo qué aprendí fueron mecanismos de ecpatia pero los lleve más al extremo y ya me incómodo lo suficiente seguir fingiendo ser lo que se supone que es "Zannián" ',
-  'con el tiempo eliminaré mis redes y si alguno llega a contactarme por las nuevas estaré dispuesto a hablar si la intención es formar una nueva amistad, de lo contrario los trataré como si fueran mis exs, con esto no les prometo bienestar para mí vida, si me alejo es para que sé queden con la linda visión que tienen de el, la vida es demasiado corta como para detenerse a preocuparse por la ajena, tirense una chillada si lo necesitan y pasen página',
-]; // <-- Escribe aquí tu texto, entre las comillas.
-
-/* ============================================================
-   AQUÍ ESCRIBES TÚ EL TEXTO "FINAL_NICOL"
-   (aparece solo, sin imagen, justo después del mensaje
-   "Ahora uno más personal"). Cada elemento del array es un
-   párrafo/página; se navegan con las flechas prev/next, igual
-   que el texto de INICIAL_NICOL.
-   ============================================================ */
-const FINAL_NICOL = [
-  'Bueno Nicol ya es su parte explicativa, de mi parte diría que lo tienes re jodido, claramente no tienes una buena vida y ahora el que según bajo tus palabras era tu único amigo se va pa la mierda,',
-  'parece una apuñalada del universo a tus ovarios, de verdad que te tratan como si fueras una oveja negra pero quién sabe si lo que le decías era cierto o parte de tu juegos de manipulación, ya ni porque seas mujer si no porque así de mierda creciste,',
-  'evidentemente tuve errores pero con sinceridad simplemente intentaba ser una linda persona entré tanta mierda pero ya me quiero dejar llevar, por esta misma acción es que tomo la decisión de alejarme de ustedes, no me siento identificado ni con el nombre de "Zannián", estoy desechando toda esa vida, puede que técnicamente esto es decir que me raye pero como ya le comenté a alguno,',
-  'créeme que eres indefendible, por parte de Zannián ojalá que su visión de ti se cumpla porqué la que te gusta mostrar al público parece ser que es la de ser el juguete de bonita cara de los niños y de esos hay en exageración en el mundo,',
-  'suerte con la "soledad afectiva" que esto te ayude a pasar de página más fácil y que Zannián no sea una excusa para comprarte cuchillas',
-];
-
-/**
- * Muestra una lista de párrafos, uno a la vez, con Typewriter, y deja que el
- * usuario navegue entre ellos con las flechas prev/next (o ←/→). Devuelve una
- * promesa que se resuelve cuando se llega al último párrafo.
- */
+/** Texto paginado con Typewriter y flechas prev/next (o teclas ←/→). */
 async function runPaginatedText({ paragraphs, textElId, dotsWrapId, prevBtnId, nextBtnId, typeSpeed = 16, typeVariance = 10 }) {
+  paragraphs = normalizeParagraphs(paragraphs);
+  if (paragraphs.length === 0) return;
+
   const textEl = document.getElementById(textElId);
   const dotsWrap = document.getElementById(dotsWrapId);
   const prevBtn = document.getElementById(prevBtnId);
@@ -966,23 +797,185 @@ async function runPaginatedText({ paragraphs, textElId, dotsWrapId, prevBtnId, n
   nextPageBtn.hidden = true;
 }
 
-async function runFinal() {
+/* ============================================================
+   Rutas: cada tarjeta (data-element) dispara su propia ruta
+   ============================================================ */
+
+/**
+ * Activa las tarjetas que tienen una ruta definida en ROUTES. Al tocar
+ * una, se desactivan todas (para no lanzar dos rutas a la vez) y arranca.
+ */
+function armRouteTriggers() {
+  const disarmers = [];
+
+  Object.keys(ROUTES).forEach((key) => {
+    const card = document.querySelector(`.element-card[data-element="${key}"]`);
+    if (!card) return;
+
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+
+    const trigger = () => {
+      disarmers.forEach((disarm) => disarm());
+      runRoute(key);
+    };
+    const onKey = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        trigger();
+      }
+    };
+    const disarm = () => {
+      card.removeEventListener('click', trigger);
+      card.removeEventListener('keydown', onKey);
+    };
+
+    card.addEventListener('click', trigger);
+    card.addEventListener('keydown', onKey);
+    disarmers.push(disarm);
+  });
+}
+
+async function runElementsAgain() {
+  Ambient.setMood('elements');
+  await Scenes.show('scene-elements');
+  armRouteTriggers();
+}
+
+/* Ids del DOM de los dos conteos (compartidos por todas las rutas). */
+const COUNTDOWN_SCENES = {
+  first: {
+    sceneId: 'scene-countdown',
+    labelElId: 'text-countdown-label',
+    daysId: 'cd-days',
+    hoursId: 'cd-hours',
+    minutesId: 'cd-minutes',
+    secondsId: 'cd-seconds',
+    mood: 'countdown',
+  },
+  second: {
+    sceneId: 'scene-countdown-2',
+    labelElId: 'text-countdown-label-2',
+    daysId: 'cd2-days',
+    hoursId: 'cd2-hours',
+    minutesId: 'cd2-minutes',
+    secondsId: 'cd2-seconds',
+    mood: 'countdown2',
+  },
+};
+
+function normalizeParagraphs(value) {
+  if (typeof value === 'string') value = [value];
+  if (!Array.isArray(value)) return [];
+  return value.filter((p) => typeof p === 'string' && p.trim() !== '');
+}
+
+/**
+ * Recorre una ruta completa:
+ * apodo → [conteo 1] → carta → nave → [conteo 2] → zaninas → "más personal" → texto final.
+ * Si en alguna pregunta o en la carta se elige volver, regresa a los elementos.
+ */
+async function runRoute(key) {
+  const route = ROUTES[key];
+  if (!route) {
+    console.error(`Ruta no encontrada: ${key}`);
+    return;
+  }
+
+  try {
+    // 1. Apodo
+    const apodo = await runQuestionScene({
+      sceneId: 'scene-apodo',
+      questionElId: 'text-apodo',
+      inputElId: 'input-apodo',
+      backBtnId: 'btn-apodo-back',
+      question: route.apodo.question,
+      correctAnswer: route.apodo.answer.trim().toLowerCase(),
+      mood: 'apodo',
+    });
+    if (apodo === 'back') return runElementsAgain();
+
+    await wait(2000);
+    if (route.countdown1.enabled) {
+      await runCountdownScene({
+        ...COUNTDOWN_SCENES.first,
+        target: route.countdown1.target,
+        labelText: route.countdown1.label,
+      });
+    }
+
+    // 2. Carta (imagen + texto paginado)
+    const final = await runFinalScene(route);
+    if (final === 'back') return runElementsAgain();
+
+    // 3. Nave
+    const nave = await runQuestionScene({
+      sceneId: 'scene-nave',
+      questionElId: 'text-nave',
+      inputElId: 'input-nave',
+      backBtnId: 'btn-nave-back',
+      question: route.nave.question,
+      correctAnswer: route.nave.answer.trim().toLowerCase(),
+      mood: 'nave',
+    });
+    if (nave === 'back') return runElementsAgain();
+
+    // Al acertar, la música de adventure se corta de inmediato; la nueva
+    // pista arranca en runZaninas() cuando aparece su texto.
+    AudioController.stop();
+    await wait(2000);
+
+    if (route.countdown2.enabled) {
+      await runCountdownScene({
+        ...COUNTDOWN_SCENES.second,
+        target: route.countdown2.target,
+        labelText: route.countdown2.label,
+      });
+    }
+
+    // 4. Zaninas → "más personal" → texto final
+    await runZaninas(route);
+    await runPreFinal(route);
+    await runFinalText(route);
+  } catch (err) {
+    console.error(`Error en la ruta "${key}":`, err);
+  }
+}
+
+/* ============================================================
+   Escenas de la ruta
+   ============================================================ */
+
+/** Imagen (antes → después) + carta paginada. Devuelve 'back' o 'continue'. */
+async function runFinalScene(route) {
   Ambient.setMood('final');
-  await Scenes.show('scene-final');
 
   const img = document.getElementById('final-image');
+  const timers = [];
   if (img) {
-    setTimeout(() => {
-      img.classList.add('is-fading');
-      setTimeout(() => {
-        img.src = 'media/editada.png';
-        img.classList.remove('is-fading');
-      }, 520);
-    }, 5000);
+    img.classList.remove('is-fading');
+    img.src = route.final.imageBefore;
+    img.addEventListener(
+      'error',
+      () => console.warn('No se pudo cargar una de las imágenes de la escena final.'),
+      { once: true }
+    );
+  }
 
-    img.addEventListener('error', () => {
-      console.warn('No se pudo cargar una de las imágenes de la escena final.');
-    });
+  await Scenes.show('scene-final');
+
+  if (img) {
+    timers.push(
+      setTimeout(() => {
+        img.classList.add('is-fading');
+        timers.push(
+          setTimeout(() => {
+            img.src = route.final.imageAfter;
+            img.classList.remove('is-fading');
+          }, 520)
+        );
+      }, route.final.imageSwapDelay)
+    );
   }
 
   const actions = document.getElementById('final-actions');
@@ -990,7 +983,7 @@ async function runFinal() {
   const nextBtn = document.getElementById('btn-final-continue');
 
   await runPaginatedText({
-    paragraphs: INICIAL_NICOL,
+    paragraphs: route.final.paragraphs,
     textElId: 'text-final',
     dotsWrapId: 'final-dots',
     prevBtnId: 'btn-final-prev',
@@ -1003,6 +996,10 @@ async function runFinal() {
   nextBtn.classList.add('is-shown');
 
   const outcome = await new Promise((resolve) => {
+    const cleanup = () => {
+      backBtn.removeEventListener('click', onBack);
+      nextBtn.removeEventListener('click', onNext);
+    };
     const onBack = () => {
       cleanup();
       resolve('back');
@@ -1011,71 +1008,65 @@ async function runFinal() {
       cleanup();
       resolve('continue');
     };
-    const cleanup = () => {
-      backBtn.removeEventListener('click', onBack);
-      nextBtn.removeEventListener('click', onNext);
-    };
     backBtn.addEventListener('click', onBack);
     nextBtn.addEventListener('click', onNext);
   });
 
+  timers.forEach(clearTimeout);
   backBtn.classList.remove('is-shown');
   nextBtn.classList.remove('is-shown');
   actions.hidden = true;
 
-  if (outcome === 'back') {
-    await runElementsAgain();
-  } else {
-    await runNaveQuestion();
-  }
+  return outcome;
 }
 
-async function runZaninas() {
+async function runZaninas(route) {
+  const cfg = route.zaninas;
   Ambient.setMood('zaninas');
+
+  const img = document.getElementById('zaninas-image');
+  if (img) img.src = cfg.image;
+
   await Scenes.show('scene-pre-zaninas');
 
-  // Nocturne arranca justo cuando aparece el texto "Me gusta mucho esta
-  // melodía" (la música de adventure ya se detuvo al acertar "olvido").
-  AudioController.playNew('media/nocturne.mp3');
+  // La pista nueva arranca justo cuando aparece el texto.
+  AudioController.playNew(cfg.audio);
 
   const tw = new Typewriter(document.getElementById('text-pre-zaninas'), { speed: 38 });
-  await tw.type('Me gusta mucho esta melodía');
+  await tw.type(cfg.preText);
   await wait(2000);
 
   await Scenes.show('scene-zaninas');
-
   await wait(1500);
 
-  // Escribe el texto "intermedio" (definido arriba en INTERMEDIO_NICOL)
-  // debajo de la imagen de zaninas.
-  if (INTERMEDIO_NICOL.trim() !== '') {
-    const twIntermedio = new Typewriter(document.getElementById('text-intermedio'), { speed: 20 });
-    await twIntermedio.type(INTERMEDIO_NICOL);
+  const intermedio = normalizeParagraphs(cfg.paragraphs);
+  if (intermedio.length > 0) {
+    await runPaginatedText({
+      paragraphs: intermedio,
+      textElId: 'text-intermedio',
+      dotsWrapId: 'intermedio-dots',
+      prevBtnId: 'btn-intermedio-prev',
+      nextBtnId: 'btn-intermedio-next-page',
+      typeSpeed: 20,
+    });
     await wait(2000);
   }
-
-  // Al terminar el texto intermedio, Scenes.show ya se encarga de que
-  // todo (imagen incluida) desaparezca con un fundido antes de mostrar
-  // la siguiente escena.
-  await runPreFinalNicol();
 }
 
-async function runPreFinalNicol() {
+async function runPreFinal(route) {
   Ambient.setMood('final-nicol');
   await Scenes.show('scene-pre-final-nicol');
 
   const tw = new Typewriter(document.getElementById('text-pre-final-nicol'), { speed: 38 });
-  await tw.type('Ahora uno más personal');
+  await tw.type(route.preFinal.text);
   await wait(2000);
-
-  await runFinalNicol();
 }
 
-async function runFinalNicol() {
+async function runFinalText(route) {
   await Scenes.show('scene-final-nicol');
 
   await runPaginatedText({
-    paragraphs: FINAL_NICOL,
+    paragraphs: route.finalText,
     textElId: 'text-final-nicol',
     dotsWrapId: 'final-nicol-dots',
     prevBtnId: 'btn-final-nicol-prev',

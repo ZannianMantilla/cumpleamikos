@@ -1029,3 +1029,13 @@ body::before {
     display: none;
   }
 }
+
+/* Escena zaninas: imagen + texto intermedio paginado debajo */
+#scene-zaninas .scene__content {
+  gap: 1.2rem;
+}
+
+#scene-zaninas .zaninas-frame,
+#scene-zaninas .zaninas-frame img {
+  max-height: 38vh;
+}

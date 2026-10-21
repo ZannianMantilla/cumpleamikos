@@ -22,33 +22,41 @@ const INICIAL_NICOL = [
 ];
 
 const INTERMEDIO_NICOL = [
-  'hola',
-  'adios',
-  // 'Primer párrafo del texto intermedio.',
-]; // Cada elemento es una página. También sirve un solo string.
-
-const FINAL_NICOL = [
-  'hola',
-  'adios',
-  // 'Primer párrafo del texto final.',
-]; // Cada elemento es una página. También sirve un solo string.
+  'Tuve que reescribir este texto en varios días porque sentía que, al principio, sonaba con rabia. Muchachos, esta sección es general para que el desarrollo sea más fácil. Quiero contarles que tengo pensado tomar distancia de ustedes.',
+  'Es una decisión mía y no lo hago por “traicionar” a nadie ni nada parecido. Mi estado mental es deplorable y hay mucha rabia que no exteriorizo, justamente por mi forma tan calmada de ser.',
+  'Por eso también me siento fatigado a nivel empático; ni siquiera me reconozco a mí mismo como “Zannián” o como lo que se supone que él es.',
+  'Alguno de ustedes ya lo sabe, porque fue el único que se interesó por mi bienestar. Gracias por dejarme ser un pilar emocional en sus vidas y por confiar en mí para desahogarse.',
+  'Son personas maravillosas; con algunos defectos, como todos, pero me permitieron conocer una parte muy linda de cada uno.',
+  'Cuiden también su salud mental, y espero que les vaya bien en todo lo que se les atraviese en la vida.',
+  'No hagan show ni nada parecido, porque no quiero preocupar a nadie.',
+  'Solo quiero muuucho espacio. Los quiero mucho.',
+]; 
 
 /* ---------- Textos de Nicolas (ruta "placas") ---------- */
 /* TODO: escribe aquí los textos de Nicolas (cada elemento = una página). */
 
 const INICIAL_NICOLAS = [
-  'TODO: carta de Nicolas (página 1).',
+  '¿Qué pasa, superñaiñe? Feliz cumpleaños, care loco, espero que se encuentre muy bien. Le habla Zannián, pero no el churco prófugo de Playboy, alias Rokas,',
+  'no... Le habla este Zannián. La verdad, es una chimba poder decir que llevo siendo amigo del mismo man desde los 11 años, en sexto de secundaria, cuando nos volvimos amigos',
+  'porque estaba lloviendo en el colegio y me preguntó en las escaleras de la cancha si yo sabía qué era Naruto. Con el tiempo nos distanciamos y ambos sufrimos cambios,',
+  'aunque usted fue quien pasó por los más abruptos. Aun así, cuando parchamos vuelve a ser el mismo pendejo al que le toca enseñar a instalar un mod en Minecraft.',
+  'Espero que lo de su carrera, como lo de las cruces, deje de ser tanto blah blah blah, porque usted de verdad tiene mucho potencial. Ya sabe que no apoyo su género, pero su capacidad lírica es bastante buena.',
+  'Ya es un gran artista; lo único que le falta es un foco que lo dé a conocer. Sabe que siempre lo consideraré mi hermano, aunque seamos muy distintos en nuestra forma de pensar, y que pasar tiempo con usted es una chimba.',
+  'Espero que para su próximo pumpeaños se consiga a una mujer que lo ame realmente por ser Nicolás.',
+  'Ojalá pueda verlo, aunque sea de lejos, cumplir sus metas, rodeado de éxito y sin que nunca le falte amor. Lo amo con mi alma, hermanito mío.',
 ];
 
 const INTERMEDIO_NICOLAS = [
-  'hola',
-  'adios',
+  'Tuve que reescribir este texto en varios días porque sentía que, al principio, sonaba con rabia. Muchachos, esta sección es general para que el desarrollo sea más fácil. Quiero contarles que tengo pensado tomar distancia de ustedes.',
+  'Es una decisión mía y no lo hago por “traicionar” a nadie ni nada parecido. Mi estado mental es deplorable y hay mucha rabia que no exteriorizo, justamente por mi forma tan calmada de ser.',
+  'Por eso también me siento fatigado a nivel empático; ni siquiera me reconozco a mí mismo como “Zannián” o como lo que se supone que él es.',
+  'Alguno de ustedes ya lo sabe, porque fue el único que se interesó por mi bienestar. Gracias por dejarme ser un pilar emocional en sus vidas y por confiar en mí para desahogarse.',
+  'Son personas maravillosas; con algunos defectos, como todos, pero me permitieron conocer una parte muy linda de cada uno.',
+  'Cuiden también su salud mental, y espero que les vaya bien en todo lo que se les atraviese en la vida.',
+  'No hagan show ni nada parecido, porque no quiero preocupar a nadie.',
+  'Solo quiero muuucho espacio. Los quiero mucho.',
 ];
 
-const FINAL_NICOLAS = [
-  'hola',
-  'adios',
-];
 
 /* ============================================================
    RUTAS

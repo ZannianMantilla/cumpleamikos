@@ -32,6 +32,17 @@ const INTERMEDIO_NICOL = [
   'Solo quiero muuucho espacio. Los quiero mucho.',
 ]; 
 
+const FINAL_NICOL = [
+  'Tuve que reescribir este texto en varios días porque sentía que, al principio, sonaba con rabia. Muchachos, esta sección es general para que el desarrollo sea más fácil. Quiero contarles que tengo pensado tomar distancia de ustedes.',
+  'Es una decisión mía y no lo hago por “traicionar” a nadie ni nada parecido. Mi estado mental es deplorable y hay mucha rabia que no exteriorizo, justamente por mi forma tan calmada de ser.',
+  'Por eso también me siento fatigado a nivel empático; ni siquiera me reconozco a mí mismo como “Zannián” o como lo que se supone que él es.',
+  'Alguno de ustedes ya lo sabe, porque fue el único que se interesó por mi bienestar. Gracias por dejarme ser un pilar emocional en sus vidas y por confiar en mí para desahogarse.',
+  'Son personas maravillosas; con algunos defectos, como todos, pero me permitieron conocer una parte muy linda de cada uno.',
+  'Cuiden también su salud mental, y espero que les vaya bien en todo lo que se les atraviese en la vida.',
+  'No hagan show ni nada parecido, porque no quiero preocupar a nadie.',
+  'Solo quiero muuucho espacio. Los quiero mucho.',
+]; 
+
 /* ---------- Textos de Nicolas (ruta "placas") ---------- */
 /* TODO: escribe aquí los textos de Nicolas (cada elemento = una página). */
 
@@ -56,6 +67,17 @@ const INTERMEDIO_NICOLAS = [
   'No hagan show ni nada parecido, porque no quiero preocupar a nadie.',
   'Solo quiero muuucho espacio. Los quiero mucho.',
 ];
+
+const FINAL_NICOLAS = [
+  'Tuve que reescribir este texto en varios días porque sentía que, al principio, sonaba con rabia. Muchachos, esta sección es general para que el desarrollo sea más fácil. Quiero contarles que tengo pensado tomar distancia de ustedes.',
+  'Es una decisión mía y no lo hago por “traicionar” a nadie ni nada parecido. Mi estado mental es deplorable y hay mucha rabia que no exteriorizo, justamente por mi forma tan calmada de ser.',
+  'Por eso también me siento fatigado a nivel empático; ni siquiera me reconozco a mí mismo como “Zannián” o como lo que se supone que él es.',
+  'Alguno de ustedes ya lo sabe, porque fue el único que se interesó por mi bienestar. Gracias por dejarme ser un pilar emocional en sus vidas y por confiar en mí para desahogarse.',
+  'Son personas maravillosas; con algunos defectos, como todos, pero me permitieron conocer una parte muy linda de cada uno.',
+  'Cuiden también su salud mental, y espero que les vaya bien en todo lo que se les atraviese en la vida.',
+  'No hagan show ni nada parecido, porque no quiero preocupar a nadie.',
+  'Solo quiero muuucho espacio. Los quiero mucho.',
+]; 
 
 
 /* ============================================================

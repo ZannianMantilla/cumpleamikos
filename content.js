@@ -32,17 +32,6 @@ const INTERMEDIO_NICOL = [
   'Solo quiero muuucho espacio. Los quiero mucho.',
 ]; 
 
-const FINAL_NICOL = [
-  'Tuve que reescribir este texto en varios días porque sentía que, al principio, sonaba con rabia. Muchachos, esta sección es general para que el desarrollo sea más fácil. Quiero contarles que tengo pensado tomar distancia de ustedes.',
-  'Es una decisión mía y no lo hago por “traicionar” a nadie ni nada parecido. Mi estado mental es deplorable y hay mucha rabia que no exteriorizo, justamente por mi forma tan calmada de ser.',
-  'Por eso también me siento fatigado a nivel empático; ni siquiera me reconozco a mí mismo como “Zannián” o como lo que se supone que él es.',
-  'Alguno de ustedes ya lo sabe, porque fue el único que se interesó por mi bienestar. Gracias por dejarme ser un pilar emocional en sus vidas y por confiar en mí para desahogarse.',
-  'Son personas maravillosas; con algunos defectos, como todos, pero me permitieron conocer una parte muy linda de cada uno.',
-  'Cuiden también su salud mental, y espero que les vaya bien en todo lo que se les atraviese en la vida.',
-  'No hagan show ni nada parecido, porque no quiero preocupar a nadie.',
-  'Solo quiero muuucho espacio. Los quiero mucho.',
-]; 
-
 /* ---------- Textos de Nicolas (ruta "placas") ---------- */
 /* TODO: escribe aquí los textos de Nicolas (cada elemento = una página). */
 
@@ -68,16 +57,23 @@ const INTERMEDIO_NICOLAS = [
   'Solo quiero muuucho espacio. Los quiero mucho.',
 ];
 
-const FINAL_NICOLAS = [
-  'Tuve que reescribir este texto en varios días porque sentía que, al principio, sonaba con rabia. Muchachos, esta sección es general para que el desarrollo sea más fácil. Quiero contarles que tengo pensado tomar distancia de ustedes.',
-  'Es una decisión mía y no lo hago por “traicionar” a nadie ni nada parecido. Mi estado mental es deplorable y hay mucha rabia que no exteriorizo, justamente por mi forma tan calmada de ser.',
-  'Por eso también me siento fatigado a nivel empático; ni siquiera me reconozco a mí mismo como “Zannián” o como lo que se supone que él es.',
-  'Alguno de ustedes ya lo sabe, porque fue el único que se interesó por mi bienestar. Gracias por dejarme ser un pilar emocional en sus vidas y por confiar en mí para desahogarse.',
-  'Son personas maravillosas; con algunos defectos, como todos, pero me permitieron conocer una parte muy linda de cada uno.',
-  'Cuiden también su salud mental, y espero que les vaya bien en todo lo que se les atraviese en la vida.',
-  'No hagan show ni nada parecido, porque no quiero preocupar a nadie.',
-  'Solo quiero muuucho espacio. Los quiero mucho.',
-]; 
+/* ---------- Textos de Wast (ruta "oso") ---------- */
+
+const INICIAL_WAST = [
+  'hola',
+  'adios',
+];
+
+/* ---------- Textos de la ruta "cadena" ---------- */
+/* TODO: escribe aquí los textos de la persona de la cadena (cada elemento = una página). */
+
+const INICIAL_CADENA = [
+  'TODO: texto inicial de cadena',
+];
+
+/* Texto intermedio de oso y cadena: el mismo que ya usan anillo y placas. */
+const INTERMEDIO_WAST = INTERMEDIO_NICOL;
+const INTERMEDIO_CADENA = INTERMEDIO_NICOL;
 
 
 /* ============================================================
@@ -117,10 +113,6 @@ const ROUTES = {
       image: 'media/zaninas.png',
       paragraphs: INTERMEDIO_NICOL,
     },
-    preFinal: {
-      text: 'Ahora uno más personal',
-    },
-    finalText: FINAL_NICOL,
   },
 
   /* ------------------ PLACAS → Nicolas ------------------ */
@@ -155,9 +147,73 @@ const ROUTES = {
       image: 'media/zaninas.png', // TODO: imagen de Nicolas
       paragraphs: INTERMEDIO_NICOLAS,
     },
-    preFinal: {
-      text: 'Ahora uno más personal',
+  },
+
+  /* ------------------ OSO → Wast ------------------ */
+  oso: {
+    apodo: {
+      question: 'En femenino que pasabocas serias tu?',
+      answer: 'pandebona',
     },
-    finalText: FINAL_NICOLAS,
+    countdown1: {
+      enabled: true,
+      target: '2026-11-17T00:00:00', // 17 de noviembre
+      label: 'Falta poco para lo siguiente',
+    },
+    final: {
+      imageBefore: 'media/rostro.jpeg', // TODO: foto de Wast
+      imageAfter: 'media/editada.png', // TODO: versión editada de Wast
+      imageSwapDelay: 5000,
+      paragraphs: INICIAL_WAST,
+    },
+    nave: {
+      question: 'TODO: segunda pregunta de Wast',
+      answer: 'todo', // TODO: respuesta (en minúsculas)
+    },
+    countdown2: {
+      enabled: true,
+      target: '2026-11-19T00:00:00', // TODO: confirmar fecha
+      label: 'Un poco más de paciencia',
+    },
+    zaninas: {
+      preText: 'Me gusta mucho esta melodía',
+      audio: 'media/nocturne.mp3',
+      image: 'media/zaninas.png', // TODO: imagen de Wast
+      paragraphs: INTERMEDIO_WAST,
+    },
+  },
+
+  /* ------------------ CADENA → (pendiente) ------------------ */
+  cadena: {
+    apodo: {
+      question: 'TODO: primera pregunta de cadena',
+      answer: 'todo', // TODO: respuesta (en minúsculas)
+    },
+    countdown1: {
+      enabled: false, // TODO: activar y poner fecha
+      target: '2026-12-01T00:00:00',
+      label: 'Falta poco para lo siguiente',
+    },
+    final: {
+      imageBefore: 'media/rostro.jpeg', // TODO
+      imageAfter: 'media/editada.png', // TODO
+      imageSwapDelay: 5000,
+      paragraphs: INICIAL_CADENA,
+    },
+    nave: {
+      question: 'TODO: segunda pregunta de cadena',
+      answer: 'todo', // TODO
+    },
+    countdown2: {
+      enabled: false, // TODO: activar y poner fecha
+      target: '2026-12-03T00:00:00',
+      label: 'Un poco más de paciencia',
+    },
+    zaninas: {
+      preText: 'Me gusta mucho esta melodía',
+      audio: 'media/nocturne.mp3',
+      image: 'media/zaninas.png', // TODO
+      paragraphs: INTERMEDIO_CADENA,
+    },
   },
 };

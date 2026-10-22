@@ -872,7 +872,7 @@ function normalizeParagraphs(value) {
 
 /**
  * Recorre una ruta completa:
- * apodo → [conteo 1] → carta → nave → [conteo 2] → zaninas → "más personal" → texto final.
+ * apodo → [conteo 1] → carta → nave → [conteo 2] → zaninas (texto intermedio).
  * Si en alguna pregunta o en la carta se elige volver, regresa a los elementos.
  */
 async function runRoute(key) {
@@ -933,10 +933,8 @@ async function runRoute(key) {
       });
     }
 
-    // 4. Zaninas → "más personal" → texto final
+    // 4. Zaninas (termina con el texto intermedio)
     await runZaninas(route);
-    await runPreFinal(route);
-    await runFinalText(route);
   } catch (err) {
     console.error(`Error en la ruta "${key}":`, err);
   }
@@ -1051,27 +1049,6 @@ async function runZaninas(route) {
     });
     await wait(2000);
   }
-}
-
-async function runPreFinal(route) {
-  Ambient.setMood('final-nicol');
-  await Scenes.show('scene-pre-final-nicol');
-
-  const tw = new Typewriter(document.getElementById('text-pre-final-nicol'), { speed: 38 });
-  await tw.type(route.preFinal.text);
-  await wait(2000);
-}
-
-async function runFinalText(route) {
-  await Scenes.show('scene-final-nicol');
-
-  await runPaginatedText({
-    paragraphs: route.finalText,
-    textElId: 'text-final-nicol',
-    dotsWrapId: 'final-nicol-dots',
-    prevBtnId: 'btn-final-nicol-prev',
-    nextBtnId: 'btn-final-nicol-next-page',
-  });
 }
 
 async function startExperience() {

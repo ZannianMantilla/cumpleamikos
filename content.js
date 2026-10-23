@@ -60,15 +60,24 @@ const INTERMEDIO_NICOLAS = [
 /* ---------- Textos de Wast (ruta "oso") ---------- */
 
 const INICIAL_WAST = [
-  'hola',
-  'adios',
+  'Jelou, pandebona divina, feliz cumpleaños, nihilista fastidiosa. Espero que hoy sea un día maravilloso para ti.',
+  'En esta ocasión te habla Zannián, pero no el churco prófugo de Playboy, alias Rokas, no... Te habla este Zannián.',
+ 'Quiero decirte que conocerte fue algo increíble. Me encanta la persona que eres, con una personalidad amarga que esconde que eres un pan de Dios. Es admirable lo inteligente que eres y lo talentosa que eres para el dibujo;',
+ 'siempre me maravilló tu arte, aunque ciertas obras no tuvieran una temática agradable. El chiste de ser gemelos se difumina mucho, sobre todo porque cuando algo malo le pasa a uno, al otro le ocurre algo similar.',
+ 'Sería muy lindo ver en un futuro que solo necesites de tu arte para vivir, que te realices como persona y, sobre todo, que te sientas feliz con el hombre que tanto amas actualmente.',
+ 'Mucho bienestar para ambos, y para ti, espero que disfrutes de la vida, mi gemela hermosa.',
+ 'Me siento orgulloso de ser tan cercano a ti. Te quiero mucho, wasesina.',
 ];
 
-/* ---------- Textos de la ruta "cadena" ---------- */
-/* TODO: escribe aquí los textos de la persona de la cadena (cada elemento = una página). */
+/* ---------- Textos de Ñoño (ruta "cadena") ---------- */
 
 const INICIAL_CADENA = [
-  'TODO: texto inicial de cadena',
+  'Socio, usted es el único de mis amigos que no cumple años ahorita, entonces pailas, me tocó adelantarme, JASKJA.',
+'En esta ocasión le habla Zannián, pero no el churco prófugo de Playboy, alias Rokas, no... Le habla este Zannián. Manito, espero que se encuentre bien, que Till Lindemann me lo bendiga, socio.',
+'Que le vaya muy bien en su carrera de filmmaker, porque usted tiene una mente sumamente dinámica, no creativa, pero sí dinámica, JASKJ.',
+'No sé nada sobre su situación actual, pero me alegraría saber que encontró a una mujer que lo quiera tal cual como es y que toda su familia se encuentre estable.',
+'Qué chimba decir que llevamos tanto tiempo siendo amigos, que tengo un parcerito que copea para todo y que toma chimba de fotos.',
+'Cuide mucho a su motico y cuídese mucho usted.',
 ];
 
 /* Texto intermedio de oso y cadena: el mismo que ya usan anillo y placas. */
@@ -152,12 +161,12 @@ const ROUTES = {
   /* ------------------ OSO → Wast ------------------ */
   oso: {
     apodo: {
-      question: 'En femenino que pasabocas serias tu?',
+      question: 'Hablando en femenino, ¿qué pasabocas serías tú?',
       answer: 'pandebona',
     },
     countdown1: {
       enabled: true,
-      target: '2026-11-17T00:00:00', // 17 de noviembre
+      target: '2026-11-17T00:00:00', // 17 de noviembre de 2026
       label: 'Falta poco para lo siguiente',
     },
     final: {
@@ -167,12 +176,12 @@ const ROUTES = {
       paragraphs: INICIAL_WAST,
     },
     nave: {
-      question: 'TODO: segunda pregunta de Wast',
-      answer: 'todo', // TODO: respuesta (en minúsculas)
+      question: 'Tan blanca como una...?',
+      answer: 'cuajada',
     },
     countdown2: {
       enabled: true,
-      target: '2026-11-19T00:00:00', // TODO: confirmar fecha
+      target: '2026-11-19T00:00:00', // 19 de noviembre de 2026
       label: 'Un poco más de paciencia',
     },
     zaninas: {
@@ -183,36 +192,36 @@ const ROUTES = {
     },
   },
 
-  /* ------------------ CADENA → (pendiente) ------------------ */
+  /* ------------------ CADENA → Ñoño ------------------ */
   cadena: {
     apodo: {
-      question: 'TODO: primera pregunta de cadena',
-      answer: 'todo', // TODO: respuesta (en minúsculas)
+      question: 'Socio, Pana, Parcero y el M...',
+      answer: 'manito',
     },
     countdown1: {
-      enabled: false, // TODO: activar y poner fecha
-      target: '2026-12-01T00:00:00',
+      enabled: true,
+      target: '2026-11-02T00:00:00', // 2 de noviembre de 2026
       label: 'Falta poco para lo siguiente',
     },
     final: {
-      imageBefore: 'media/rostro.jpeg', // TODO
-      imageAfter: 'media/editada.png', // TODO
+      imageBefore: 'media/rostro.jpeg', // TODO: foto de Ñoño
+      imageAfter: 'media/editada.png', // TODO: versión editada de Ñoño
       imageSwapDelay: 5000,
       paragraphs: INICIAL_CADENA,
     },
     nave: {
-      question: 'TODO: segunda pregunta de cadena',
-      answer: 'todo', // TODO
+      question: 'Algo que no reventaba el coco pero sí los dedos',
+      answer: 'guitar flash',
     },
     countdown2: {
-      enabled: false, // TODO: activar y poner fecha
-      target: '2026-12-03T00:00:00',
+      enabled: true,
+      target: '2026-11-04T00:00:00', // 4 de noviembre de 2026
       label: 'Un poco más de paciencia',
     },
     zaninas: {
-      preText: 'Me gusta mucho esta melodía',
+      preText: 'Los OG saben que esta es mi song',
       audio: 'media/nocturne.mp3',
-      image: 'media/zaninas.png', // TODO
+      image: 'media/zaninas.png', // TODO: imagen de Ñoño
       paragraphs: INTERMEDIO_CADENA,
     },
   },

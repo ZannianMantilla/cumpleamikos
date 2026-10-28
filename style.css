@@ -358,11 +358,20 @@ body::before {
 
 .elements-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+  /* 5 tarjetas: 4 columnas (cada una ocupa 2) y 3 filas; la quinta queda centrada abajo. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
   gap: clamp(1rem, 2.4vw, 2rem);
   width: min(84vw, 920px);
-  height: min(78vh, 640px);
+  height: min(84vh, 760px);
+}
+
+.element-card {
+  grid-column: span 2;
+}
+
+.element-card:nth-child(5) {
+  grid-column: 2 / span 2;
 }
 
 .element-card {
@@ -426,7 +435,9 @@ body::before {
 
 .element-card__frame {
   position: relative;
-  width: 62%;
+  flex: 1 1 0;
+  min-height: 0;
+  max-width: 72%;
   aspect-ratio: 1 / 1;
   overflow: hidden;
   border-radius: 3px;
@@ -480,20 +491,14 @@ body::before {
 /* Móvil (hasta 640px): grid de elementos más compacta */
 @media (max-width: 640px) {
   .elements-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: repeat(2, minmax(0, 1fr));
     width: min(90vw, 480px);
-    height: min(70vh, 560px);
+    height: min(78vh, 640px);
     gap: 0.8rem;
   }
 
   .element-card {
     padding: 0.9rem;
     gap: 0.6rem;
-  }
-
-  .element-card__frame {
-    width: 72%;
   }
 
   .scene__content {
@@ -564,7 +569,7 @@ body::before {
 
   .elements-grid {
     width: min(72vw, 760px);
-    height: min(70vh, 620px);
+    height: min(78vh, 700px);
     gap: 1.6rem;
   }
 
@@ -589,7 +594,7 @@ body::before {
 
   .elements-grid {
     width: min(50vw, 920px);
-    height: min(74vh, 640px);
+    height: min(82vh, 720px);
   }
 
   .final-image-frame {
@@ -605,7 +610,7 @@ body::before {
 @media (min-width: 1600px) {
   .elements-grid {
     width: min(46vw, 980px);
-    height: min(72vh, 680px);
+    height: min(80vh, 760px);
   }
 }
 
@@ -621,8 +626,8 @@ body::before {
   }
 
   .elements-grid {
-    height: min(82vh, 420px);
-    gap: 0.6rem;
+    height: min(86vh, 440px);
+    gap: 0.5rem;
   }
 
   .element-card {

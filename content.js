@@ -24,6 +24,7 @@ const INICIAL_NICOL = [
 const INTERMEDIO_NICOL = [
   'Tuve que reescribir este texto en varios días porque sentía que, al principio, sonaba con rabia. Muchachos, esta sección es general para que el desarrollo sea más fácil. Quiero contarles que tengo pensado tomar distancia de ustedes.',
   'Es una decisión mía y no lo hago por “traicionar” a nadie ni nada parecido. Mi estado mental es deplorable y hay mucha rabia que no exteriorizo, justamente por mi forma tan calmada de ser.',
+  'No es responsabilidad de ustedes; fue algo más de egoísmo propio. Pero sentí que para ustedes estaba olvidado: yo estaba ahí para atender sus problemas, pero cuando yo estaba mal no pensaron en meterme los dedos hasta la garganta para que les dijera qué pasaba conmigo, así como yo hacía con ustedes.',
   'Por eso también me siento fatigado a nivel empático; ni siquiera me reconozco a mí mismo como “Zannián” o como lo que se supone que él es.',
   'Alguno de ustedes ya lo sabe, porque fue el único que se interesó por mi bienestar. Gracias por dejarme ser un pilar emocional en sus vidas y por confiar en mí para desahogarse.',
   'Son personas maravillosas; con algunos defectos, como todos, pero me permitieron conocer una parte muy linda de cada uno.',
@@ -46,16 +47,7 @@ const INICIAL_NICOLAS = [
   'Ojalá pueda verlo, aunque sea de lejos, cumplir sus metas, rodeado de éxito y sin que nunca le falte amor. Lo amo con mi alma, hermanito mío.',
 ];
 
-const INTERMEDIO_NICOLAS = [
-  'Tuve que reescribir este texto en varios días porque sentía que, al principio, sonaba con rabia. Muchachos, esta sección es general para que el desarrollo sea más fácil. Quiero contarles que tengo pensado tomar distancia de ustedes.',
-  'Es una decisión mía y no lo hago por “traicionar” a nadie ni nada parecido. Mi estado mental es deplorable y hay mucha rabia que no exteriorizo, justamente por mi forma tan calmada de ser.',
-  'Por eso también me siento fatigado a nivel empático; ni siquiera me reconozco a mí mismo como “Zannián” o como lo que se supone que él es.',
-  'Alguno de ustedes ya lo sabe, porque fue el único que se interesó por mi bienestar. Gracias por dejarme ser un pilar emocional en sus vidas y por confiar en mí para desahogarse.',
-  'Son personas maravillosas; con algunos defectos, como todos, pero me permitieron conocer una parte muy linda de cada uno.',
-  'Cuiden también su salud mental, y espero que les vaya bien en todo lo que se les atraviese en la vida.',
-  'No hagan show ni nada parecido, porque no quiero preocupar a nadie.',
-  'Solo quiero muuucho espacio. Los quiero mucho.',
-];
+const INTERMEDIO_NICOLAS = INTERMEDIO_NICOL; // mismo texto intermedio para todos
 
 /* ---------- Textos de Wast (ruta "oso") ---------- */
 
@@ -80,9 +72,21 @@ const INICIAL_CADENA = [
 'Cuide mucho a su motico y cuídese mucho usted.',
 ];
 
-/* Texto intermedio de oso y cadena: el mismo que ya usan anillo y placas. */
+/* ---------- Textos de Viridiana (ruta "libro") ---------- */
+
+const INICIAL_LIBRO = [
+  'Señorita Viridiana, tu madre te colocó unos nombres tan hermosos. ¿Cómo revocarte el placer de estar aquí si, aun después de tanto, te sigo queriendo y amando? No te confundas: amo que la vida pueda experimentar lo que es tenerte en ella. Y aunque tal vez romantice mucho quién eres, supongo que solo expreso el agradecimiento que siente el que late en mi pecho.',
+  'Vi lo de Komanche. Obvio, lo reconocía, pero nunca lo consumí; aun así, siento que, sin querer, él me ayudó a recapacitar. Que descanse en paz.',
+  'Sé que sueno a lamebotas, pero de verdad eres la única persona en la que siento que podía apoyarme, en lugar de ser yo quien tiene que apoyar. Perdón por aquellas veces que fui grosero contigo, por las veces que te hice llorar o enojar. Hablar contigo me salvó muchas veces.',
+  'Voy a agarrar mi bolita de esperanza actual para ser un buen hombre; que a Kenai le falte el ADN de papá, pero nunca su corazón. Gracias por prestar atención a mis problemas, Keni.',
+  'Espero que la vida recompense con éxitos al corazón del cual me enamoré de más joven; que pronto te traiga a ese chico que tanto anhelas y, si no es él, entonces que te dé un príncipe azul que esté a tu talla.',
+  'Mucha suerte, mi loquita, mitad imaginaria que vive en mi cabeza. Te quiero mucho. 💜',
+];
+
+/* Texto intermedio de oso, cadena y libro: el mismo que ya usan anillo y placas. */
 const INTERMEDIO_WAST = INTERMEDIO_NICOL;
 const INTERMEDIO_CADENA = INTERMEDIO_NICOL;
+const INTERMEDIO_LIBRO = INTERMEDIO_NICOL;
 
 
 /* ============================================================
@@ -223,6 +227,40 @@ const ROUTES = {
       audio: 'media/nocturne.mp3',
       image: 'media/zaninas.png', // TODO: imagen de Ñoño
       paragraphs: INTERMEDIO_CADENA,
+    },
+  },
+
+  /* ------------------ LIBRO → Viridiana ------------------ */
+  libro: {
+    apodo: {
+      question: 'Tienes ojos de n-',
+      answer: 'novia',
+    },
+    countdown1: {
+      enabled: false, // sin conteo: pasa directo a la carta
+      target: '2026-01-01T00:00:00',
+      label: '',
+    },
+    final: {
+      imageBefore: 'media/rostro.jpeg', // TODO: foto de Viridiana
+      imageAfter: 'media/editada.png', // TODO: versión editada de Viridiana
+      imageSwapDelay: 5000,
+      paragraphs: INICIAL_LIBRO,
+    },
+    nave: {
+      question: 'Una nube inusual, ¿qué color tiene?',
+      answer: 'rosa',
+    },
+    countdown2: {
+      enabled: false, // sin conteo: pasa directo al último mensaje
+      target: '2026-01-01T00:00:00',
+      label: '',
+    },
+    zaninas: {
+      preText: 'Me gusta mucho esta melodía',
+      audio: 'media/nocturne.mp3',
+      image: 'media/zaninas.png', // TODO: imagen de Viridiana
+      paragraphs: INTERMEDIO_LIBRO,
     },
   },
 };

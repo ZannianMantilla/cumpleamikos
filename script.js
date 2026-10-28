@@ -220,8 +220,10 @@ class Typewriter {
           i = end + 1;
         }
       } else {
-        tokens.push({ type: 'char', value: html[i] });
-        i++;
+        // Por code point (no por unidad UTF-16) para no partir emojis como 💜.
+        const ch = String.fromCodePoint(html.codePointAt(i));
+        tokens.push({ type: 'char', value: ch });
+        i += ch.length;
       }
     }
     return tokens;
